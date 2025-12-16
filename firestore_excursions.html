@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excursiones con Firestore Simple</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6', /* Blue */
+                        secondary: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-2xl">
+        <header class="mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-primary">
+                Excursiones Disponibles (Firestore)
+            </h1>
+            <p class="text-gray-600 mt-1">
+                Lista de datos en tiempo real.
+            </p>
+            <div class="mt-3 p-2 bg-yellow-50 rounded-lg text-sm border-l-4 border-yellow-400">
+                <p class="font-semibold text-yellow-800">
+                    ID de Usuario: <span id="user-id-display" class="font-mono text-xs bg-yellow-200 px-1 rounded">Cargando...</span>
+                </p>
+                <p class="text-xs text-yellow-700 mt-1">
+                    Para agregar datos iniciales, abra la consola del navegador (<kbd>F12</kbd>) y ejecute: 
+                    <code class="font-mono text-xs text-blue-600">populateInitialData()</code>
+                </p>
+            </div>
+        </header>
+        
+        <!-- Aviso para Despliegue en GitHub -->
+        <div class="mb-6 p-4 border border-red-400 bg-red-50 rounded-lg shadow-inner">
+            <h2 class="text-xl font-semibold text-red-600 mb-2">⚠ Aviso de Despliegue (GitHub)</h2>
+            <p class="text-sm text-red-700">
+                Si planea alojar esta aplicación fuera del entorno Canvas (ej: GitHub Pages), **debe** reemplazar el objeto 
+                <code class="font-mono text-xs bg-red-200 px-1 rounded">PUBLIC_FIREBASE_CONFIG</code> 
+                en el script (línea 75~) con la configuración de su **propio proyecto Firebase** para que la aplicación funcione.
+            </p>
+            <p class="text-sm text-red-700 mt-2">
+                *Nota: Dentro de Canvas, se usa la configuración inyectada automáticamente y el código funcionará como antes.*
+            </p>
+        </div>
+
+        <!-- Sección para Añadir Nueva Excursión -->
+        <div class="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-lg shadow-inner">
+            <h2 class="text-xl font-semibold text-primary mb-3">Añadir Nueva Excursión</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input type="text" id="new-name" placeholder="Nombre (ej: Tour en Kayak)" class="p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                <input type="text" id="new-description" placeholder="Descripción (ej: 4 horas de remo)" class="p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary md:col-span-2">
+                <input type="number" id="new-price" placeholder="Precio (ej: 150.00)" class="p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                <button id="add-button" class="md:col-span-2 bg-secondary hover:bg-green-600 text-white font-bold py-2 rounded-md transition duration-150">
+                    Guardar Excursión en Firestore
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenedor principal donde se listarán los datos -->
+        <div id="content-container" class="space-y-4">
+            <div id="loading-spinner" class="text-center p-8 text-primary">
+                 <svg class="animate-spin h-6 w-6 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-2 text-sm font-semibold">Conectando a Firestore...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, setDoc, doc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Globales proporcionadas por el entorno (Usadas solo en Canvas)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Configuración de Firebase pública para despliegue en GitHub Pages, etc.
+        // **IMPORTANTE**: Cuando suba esto a GitHub, reemplace el objeto vacío '{}' por la configuración de su propio proyecto Firebase (la encontrará en la configuración de su proyecto en la consola de Firebase).
+        const PUBLIC_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyBkD2NVDBrfMAoN6yf8ghT-tvmYzUT_qoY",
+  authDomain: "ex2025-ef9c1.firebaseapp.com",
+  projectId: "ex2025-ef9c1",
+  storageBucket: "ex2025-ef9c1.firebasestorage.app",
+  messagingSenderId: "400813380972",
+  appId: "1:400813380972:web:dde09354f56655ded54f49"
+        }; 
+        
+        let firebaseConfig;
+
+        // Determinar si estamos en Canvas o si el usuario ha proporcionado una configuración pública
+        const isCanvasConfigAvailable = typeof __firebase_config !== 'undefined' && JSON.stringify(JSON.parse(__firebase_config)) !== '{}';
+        const isPublicConfigProvided = Object.keys(PUBLIC_FIREBASE_CONFIG).length > 0;
+
+        if (isCanvasConfigAvailable) {
+            firebaseConfig = JSON.parse(__firebase_config);
+            console.log("Usando configuración de Canvas.");
+        } else if (isPublicConfigProvided && PUBLIC_FIREBASE_CONFIG.projectId) {
+            firebaseConfig = PUBLIC_FIREBASE_CONFIG;
+            console.log("Usando configuración Pública (GitHub).");
+        } else {
+             console.error("No se encontró una configuración de Firebase válida. La aplicación no funcionará.");
+             displayMessage("ERROR: No se encontró la configuración de Firebase. Asegúrese de que PUBLIC_FIREBASE_CONFIG esté configurado para despliegue externo.", true);
+             return; // Detener la ejecución si no hay config
+        }
+        
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        let userId = null;
+        // Colección pública para los datos de excursiones
+        const CONTENT_COLLECTION_NAME = 'minimal_excursions'; 
+        const CONTENT_PATH = `artifacts/${appId}/public/data/${CONTENT_COLLECTION_NAME}`;
+
+        const contentContainer = document.getElementById('content-container');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const addButton = document.getElementById('add-button');
+        const newNameInput = document.getElementById('new-name');
+        const newDescriptionInput = document.getElementById('new-description');
+        const newPriceInput = document.getElementById('new-price');
+
+
+        /**
+         * Muestra un mensaje de estado o error.
+         */
+        function displayMessage(message, isError = false) {
+            contentContainer.innerHTML = `
+                <div class="p-4 text-center rounded-lg ${isError ? 'bg-red-100 border border-red-400 text-red-700' : 'bg-blue-50 text-primary'}">
+                    <p class="font-medium">${message}</p>
+                </div>
+            `;
+        }
+        
+        /**
+         * Autenticación inicial y anónima en Firebase.
+         */
+        async function authenticate() {
+            try {
+                if (initialAuthToken) {
+                    // Uso de token seguro (sólo en Canvas)
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Autenticación Firebase exitosa (Token Canvas).");
+                } else {
+                    // Uso de autenticación anónima (para despliegue público)
+                    await signInAnonymously(auth);
+                    console.log("Autenticación Firebase exitosa (Anónima).");
+                }
+            } catch (error) {
+                console.error("Fallo en la autenticación Firebase:", error);
+                displayMessage("Error: Fallo al autenticar.", true);
+            }
+        }
+        
+        /**
+         * Añade un nuevo documento a la colección de Firestore.
+         */
+        async function createExcursion() {
+            const name = newNameInput.value.trim();
+            const description = newDescriptionInput.value.trim();
+            // Asegura que el precio es un número positivo
+            const price = parseFloat(newPriceInput.value.trim()); 
+
+            if (!name || isNaN(price) || price <= 0) {
+                console.error("Faltan datos o el precio es inválido.");
+                // Feedback visual simple
+                newNameInput.classList.add('border-red-500');
+                newPriceInput.classList.add('border-red-500');
+                setTimeout(() => {
+                    newNameInput.classList.remove('border-red-500');
+                    newPriceInput.classList.remove('border-red-500');
+                }, 1000);
+                return;
+            }
+
+            const excursionData = {
+                name: name,
+                description: description || 'Sin descripción.',
+                price: price,
+                activities: ["Personalizada"],
+                creatorId: userId, // Registrar quién lo creó
+                created_at: new Date().toISOString()
+            };
+
+            addButton.disabled = true;
+            addButton.textContent = 'Guardando...';
+
+            try {
+                // Usamos addDoc para añadir un nuevo documento con ID generado automáticamente
+                await addDoc(collection(db, CONTENT_PATH), excursionData);
+                console.log("✅ Documento añadido con éxito.");
+
+                // Limpiar los campos
+                newNameInput.value = '';
+                newDescriptionInput.value = '';
+                newPriceInput.value = '';
+
+            } catch (error) {
+                console.error("❌ Error al guardar la excursión:", error);
+            } finally {
+                addButton.disabled = false;
+                addButton.textContent = 'Guardar Excursión en Firestore';
+            }
+        }
+
+
+        /**
+         * Genera la lista simple de excursiones.
+         */
+        function renderExcursions(excursions) {
+            if (!excursions || excursions.length === 0) {
+                displayMessage("No hay datos de excursiones. Ejecuta populateInitialData() para empezar.", false);
+                return;
+            }
+
+            const htmlContent = excursions.map(excursion => `
+                <div class="flex justify-between items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-800">${excursion.name || 'Sin Nombre'}</h2>
+                        <p class="text-sm text-gray-500">${excursion.description || 'Sin descripción.'}</p>
+                    </div>
+                    <span class="text-xl font-bold text-secondary">
+                        $${(excursion.price || 0).toFixed(2)}
+                    </span>
+                </div>
+            `).join('');
+
+            contentContainer.innerHTML = htmlContent;
+        }
+
+        /**
+         * Configura el listener en tiempo real a la colección de excursiones.
+         */
+        function setupRealtimeListener() {
+            const excursionsColRef = collection(db, CONTENT_PATH);
+            
+            // onSnapshot es la clave para la lectura en tiempo real
+            onSnapshot(excursionsColRef, (snapshot) => {
+                const excursions = [];
+                snapshot.forEach(doc => {
+                    excursions.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Ordenar por nombre
+                excursions.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+                renderExcursions(excursions);
+
+            }, (error) => {
+                console.error("Error al leer datos de Firestore:", error);
+                displayMessage("Error al cargar la lista de excursiones.", true);
+            });
+        }
+        
+        /**
+         * Función para poblar Firestore con datos iniciales (Ejecutar en consola).
+         */
+        window.populateInitialData = async function() {
+            const initialData = [
+                {
+                    name: "Tour Histórico por Roma",
+                    description: "Visita el Coliseo, el Foro Romano y la Fuente de Trevi.",
+                    price: 99.99,
+                    activities: ["Caminata", "Cultura"],
+                    image: "placeholder_roma"
+                },
+                {
+                    name: "Aventura de Kayak en Fiordos",
+                    description: "Explora los impresionantes fiordos noruegos en un kayak de mar.",
+                    price: 185.50,
+                    activities: ["Kayak", "Naturaleza"],
+                    image: "placeholder_kayak"
+                },
+                {
+                    name: "Ruta del Vino en Mendoza",
+                    description: "Degustación de Malbec en las mejores bodegas argentinas.",
+                    price: 75.00,
+                    activities: ["Cata", "Gastronomía"],
+                    image: "placeholder_mendoza"
+                }
+            ];
+
+            const batch = [];
+            
+            initialData.forEach(data => {
+                // Usamos un nombre de documento aleatorio
+                const newDocRef = doc(collection(db, CONTENT_PATH)); 
+                batch.push(setDoc(newDocRef, {...data, creatorId: userId, created_at: new Date().toISOString() }));
+            });
+
+            try {
+                await Promise.all(batch);
+                console.log(`✅ Éxito: Se añadieron ${initialData.length} documentos a Firestore.`);
+            } catch (error) {
+                console.error("❌ Error al poblar los datos iniciales:", error);
+                // Usamos la consola, evitamos alert()
+            }
+        };
+
+
+        // 1. Esperar el cambio de estado de autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                userIdDisplay.textContent = userId;
+                
+                // 2. Una vez autenticado, iniciar el listener de datos y la función de escritura
+                setupRealtimeListener();
+                addButton.addEventListener('click', createExcursion);
+
+            } else {
+                // 0. Iniciar el proceso de autenticación si no hay usuario
+                authenticate();
+            }
+        });
+    </script>
+</body>
+</html>
