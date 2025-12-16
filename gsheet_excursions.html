@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de color de Tailwind y fuente Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    // Paleta de colores mejorada
+                    colors: {
+                        'primary': '#1D4ED8', // Azul oscuro (Blue-700)
+                        'secondary': '#059669', // Verde esmeralda fuerte (Emerald-600)
+                        'accent': '#F59E0B', // Ámbar (Amber-500)
+                        'background': '#F9FAFB', // Fondo muy claro
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+    </style>
+</head>
+<body class="bg-background flex items-center justify-center min-h-screen p-4 sm:p-6">
+
+    <!-- Bloque de Guardia de Acceso (DEBE EJECUTARSE PRIMERO) -->
+    <script>
+        // Si la bandera 'isLoggedIn' no está establecida, redirigir al login
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            // Utilizamos replace para evitar que el usuario pueda volver con el botón atrás
+            window.location.replace('login_form.html');
+            // Detener la ejecución del script y renderizado de la página
+            throw new Error("Acceso Denegado. Redirigiendo a login."); 
+        }
+        
+        // Opcional: Para una mejor seguridad, eliminar la bandera al salir de la página
+        window.addEventListener('beforeunload', () => {
+             // sessionStorage.removeItem('isLoggedIn'); // Descomentar si se desea cerrar sesión al cerrar pestaña
+        });
+    </script>
+    <!-- FIN Bloque de Guardia -->
+
+
+    <!-- Contenedor principal del formulario -->
+    <div class="w-full max-w-xl bg-white shadow-2xl rounded-xl p-6 sm:p-8 border border-gray-100">
+
+        <header class="mb-8 border-b border-gray-200 pb-4">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+                Registro de Oferta
+            </h1>
+            <p class="mt-2 text-md text-gray-500">
+                Detalles de tu Producto, Servicio o Actividad.
+            </p>
+        </header>
+
+        <form id="registrationForm" onsubmit="handleFormSubmit(event)">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-6">
+
+                <!-- GRUUP 1: Información Básica -->
+                <div class="md:col-span-2">
+                    <h2 class="text-xl font-bold text-primary mb-4 pb-2">Información General</h2>
+                </div>
+
+                <!-- Lista Desplegable para seleccionar la Excursión (con onchange para cargar datos) -->
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Excursión</label>
+                    <select id="nombre" name="nombre" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 bg-white rounded-lg shadow-sm focus:ring-primary focus:border-primary transition duration-150"
+                        onchange="loadExcursionData(this.value)">
+                        <option value="">--- Selecciona una Excursión ---</option>
+                        <option value="Skyline">Skyline</option>
+                        <option value="Habana Tenerife">Habana Tenerife</option>
+                        <option value="Gulliber">Gulliber</option>
+                        <option value="Maxicat.com">Maxicat.com</option>
+                        <option value="True Love">True Love</option>
+                        <option value="Frieebird">Frieebird</option>
+                        <option value="El Fénix">El Fénix</option>
+                        <option value="Neptuno">Neptuno</option>
+                        <option value="Eden Catamaran">Eden Catamaran</option>
+                        <option value="Buggy Paradise">Buggy Paradise</option>
+                        <option value="Jet hub">Jet hub</option>
+                        <option value="Master OffRoad">Master OffRoad</option>
+                        <option value="Buggy hub">Buggy hub</option>
+                        <option value="Buggy Canarias">Buggy Canarias</option>
+                        <option value="Jet Ski Wave">Jet Ski Wave</option>
+                        <option value="Pantalan 7">Pantalan 7</option>
+                        <option value="Wow Jet Ski">Wow Jet Ski</option>
+                        <option value="Jet Ski Ice">Jet Ski Ice</option>
+                        <option value="Xcurslin">Xcurslin</option>
+                        <option value="RadikalFlash Jet Ski">RadikalFlash Jet Ski</option>
+                        <option value="Soul Jeep">Soul Jeep</option>
+                        <option value="King Bugy">King Bugy</option>
+                        <option value="Jetcar">Jetcar</option>
+                        <option value="Pirati Tenerife">Pirati Tenerife</option>
+                        <option value="Safari Jet Sky">Safari Jet Sky</option>
+                        <option value="Radical Jet Sky">Radical Jet Sky</option>
+                        <option value="Won Jet Ski">Won Jet Ski</option>
+                        <option value="Extreme Skis">Extreme Skis</option>
+                        <option value="Flash Jet Ski">Flash Jet Ski</option>
+                        <option value="Jet Hub">Jet Hub</option>
+                        <option value="Rent a Bike">Rent a Bike</option>
+                        <option value="MobilityTinerife Garden">MobilityTinerife Garden</option>
+                        <option value="Tenerife First Quad">Tenerife First Quad</option>
+                        <option value="Quad hub">Quad hub</option>
+                        <option value="Pirati Tenerife Quad">Pirati Tenerife Quad</option>
+                        <option value="Quad Squad">Quad Squad</option>
+                        <option value="Quad excursions">Quad excursions</option>
+                        <option value="Xtreme">Xtreme</option>
+                        <option value="Monster Quad & Buggy">Monster Quad & Buggy</option>
+                        <option value="Watersaafarismoi">Watersaafarismoi</option>
+                        <option value="Seaquestff">Seaquestff</option>
+                        <option value="Ocean Blue Tenerife">Ocean Blue Tenerife</option>
+                        <option value="Arriro Boat">Arriro Boat</option>
+                    </select>
+                </div>
+
+                <!-- Categoría ACTUALIZADA -->
+                <div>
+                    <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select id="categoria" name="categoria" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 bg-white rounded-lg shadow-sm focus:ring-primary focus:border-primary transition duration-150">
+                        <option value="">Selecciona una categoría</option>
+                        <option value="Barco">Barco</option>
+                        <option value="Barco Rental">Barco Rental</option>
+                        <option value="Buggy">Buggy</option>
+                        <option value="Jetsky">Jetsky</option>
+                        <option value="Jetcar">Jetcar</option>
+                        <option value="Mobility">Mobility</option>
+                        <option value="Quad">Quad</option>
+                        <option value="Velero">Velero</option>
+                    </select>
+                </div>
+
+                <!-- Descripción -->
+                <div class="md:col-span-2">
+                    <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="3" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Una breve descripción de lo que ofreces (máx. 250 caracteres)."></textarea>
+                </div>
+
+                <!-- Horario -->
+                <div class="md:col-span-2">
+                    <label for="horario" class="block text-sm font-medium text-gray-700 mb-1">Horario (Detalles)</label>
+                    <input type="text" id="horario" name="horario"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Ej. Lunes y Miércoles de 19:00 a 20:00, o Abierto 24/7">
+                </div>
+                
+                <!-- Actividades / Elementos incluidos -->
+                <div class="md:col-span-2">
+                    <label for="actividades" class="block text-sm font-medium text-gray-700 mb-1">Actividades o Puntos Clave</label>
+                    <textarea id="actividades" name="actividades" rows="4"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Lista de actividades, características o elementos que el cliente recibirá (separados por coma o línea nueva)."></textarea>
+                </div>
+
+                <!-- GRUPO 2: Precios y Localización -->
+                <div class="md:col-span-2 mt-6">
+                    <h2 class="text-xl font-bold text-primary mb-4 pb-2">Tarifas y Ubicación</h2>
+                </div>
+
+                <!-- Precio -->
+                <div>
+                    <label for="precio" class="block text-sm font-medium text-gray-700 mb-1">Precio (Actual)</label>
+                    <div class="relative mt-1 rounded-lg shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" id="precio" name="precio" required min="0.01" step="0.01"
+                            class="block w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-secondary focus:border-secondary transition duration-150"
+                            placeholder="99.99">
+                    </div>
+                </div>
+
+                <!-- Precio Original -->
+                <div>
+                    <label for="precioOriginal" class="block text-sm font-medium text-gray-700 mb-1">Precio Original (Opcional)</label>
+                    <div class="relative mt-1 rounded-lg shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" id="precioOriginal" name="precioOriginal" min="0.01" step="0.01"
+                            class="block w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent transition duration-150"
+                            placeholder="129.99">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Solo si quieres mostrar un descuento.</p>
+                </div>
+
+                <!-- Localización -->
+                <div class="md:col-span-2">
+                    <label for="localizacion" class="block text-sm font-medium text-gray-700 mb-1">Localización (Dirección, Ciudad)</label>
+                    <input type="text" id="localizacion" name="localizacion" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Ej. C/ Mayor 123, Madrid, España">
+                </div>
+
+                <!-- Recomendado Checkbox -->
+                <div class="md:col-span-2 pt-4 flex items-center">
+                    <input id="recomendado" name="recomendado" type="checkbox"
+                        class="h-5 w-5 text-secondary border-gray-300 rounded focus:ring-secondary focus:ring-offset-2">
+                    <label for="recomendado" class="ml-3 text-base font-medium text-gray-700">
+                        Marcar como "Recomendado" o Destacado
+                    </label>
+                </div>
+            </div>
+
+            <!-- Contenedor para el mensaje de estado (No usar alert()) -->
+            <div id="status-message" class="mt-8 p-4 rounded-lg text-sm hidden" role="alert"></div>
+
+            <!-- Botones de Acción (Registro, Modificación y ELIMINACIÓN) -->
+            <div class="mt-10 flex flex-col sm:flex-row gap-4">
+                <!-- Botón de Registro (Visible por defecto) -->
+                <button type="submit" id="registerButton" name="action" value="register"
+                    class="w-full sm:w-auto px-8 py-3 border border-transparent text-lg font-semibold rounded-xl shadow-xl text-white bg-secondary hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-secondary/50 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">
+                    Registrar Oferta
+                </button>
+                
+                <!-- Botón de Modificación (Oculto por defecto, visible al cargar datos) -->
+                <button type="submit" id="modifyButton" name="action" value="modify"
+                    class="hidden w-full sm:w-auto px-8 py-3 border border-transparent text-lg font-semibold rounded-xl shadow-xl text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary/50 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">
+                    Modificar Oferta
+                </button>
+
+                <!-- NUEVO: Botón de Eliminación (Oculto por defecto, visible al cargar datos) -->
+                <button type="submit" id="deleteButton" name="action" value="delete"
+                    class="hidden w-full sm:w-auto px-8 py-3 border border-transparent text-lg font-semibold rounded-xl shadow-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-red-600/50 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">
+                    Eliminar Oferta
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // REEMPLAZA ESTA URL con la URL de tu Google Apps Script desplegada.
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxbclyyySiRo21CBkpF1rHWEBDiWsu41-7bU0xU2xriPCXQf8iWq-rZYuUFf4clfbc7/exec';
+
+
+        /**
+         * Carga los datos de una excursión seleccionada desde el Google Apps Script.
+         */
+        async function loadExcursionData(excursionName) {
+            const form = document.getElementById('registrationForm');
+            const registerButton = document.getElementById('registerButton');
+            const modifyButton = document.getElementById('modifyButton');
+            const deleteButton = document.getElementById('deleteButton'); // NUEVO
+            const statusMessage = document.getElementById('status-message');
+
+            // Limpiar mensaje de estado y botones
+            statusMessage.classList.add('hidden');
+            registerButton.classList.remove('hidden');
+            modifyButton.classList.add('hidden');
+            deleteButton.classList.add('hidden'); // Ocultar por defecto
+
+            // 1. Resetear formulario si no hay selección
+            if (!excursionName) {
+                form.reset();
+                return;
+            }
+            
+            // 2. Comprobar configuración de URL
+            if (GAS_WEB_APP_URL.includes('REEMPLAZAR')) {
+                showDataInStatus({}, statusMessage, 'bg-accent/10', 'text-accent', '⚠️ URL de Apps Script Faltante. No se pueden cargar datos reales.');
+                return;
+            }
+
+            // 3. Mostrar estado de carga
+            statusMessage.className = `mt-8 p-4 rounded-lg text-sm bg-blue-100 text-primary border border-current block`;
+            statusMessage.innerHTML = '<strong>Cargando datos...</strong> Por favor, espera.';
+
+            try {
+                // 4. Enviar la solicitud GET para obtener los datos
+                const fetchUrl = `${GAS_WEB_APP_URL}?action=fetch&nombre=${encodeURIComponent(excursionName)}`;
+                
+                const fetchResponse = await fetch(fetchUrl, {
+                    method: 'GET',
+                    mode: 'cors' 
+                });
+
+                // Intentar parsear el JSON
+                let data = await fetchResponse.json(); 
+                
+                // 5. Procesar la respuesta del GAS
+                if (data && data.status === 'success' && data.excursion) {
+                    const excursion = data.excursion;
+                    
+                    // Rellenar campos del formulario
+                    form.elements['categoria'].value = excursion.Categoria || '';
+                    form.elements['descripcion'].value = excursion.Descripcion || '';
+                    form.elements['horario'].value = excursion.Horario || '';
+                    // Actividades: Reemplaza el separador de la hoja (' | ') por salto de línea ('\n')
+                    form.elements['actividades'].value = (excursion.Actividades || '').replace(/ \| /g, '\n');
+                    
+                    // Asegurar que los números se carguen como números o cadenas vacías
+                    form.elements['precio'].value = excursion.Precio && !isNaN(excursion.Precio) ? parseFloat(excursion.Precio) : '';
+                    form.elements['precioOriginal'].value = excursion['Precio Original'] && !isNaN(excursion['Precio Original']) ? parseFloat(excursion['Precio Original']) : '';
+                    
+                    form.elements['localizacion'].value = excursion.Localizacion || '';
+                    form.elements['recomendado'].checked = excursion.Recomendado === 'Sí';
+                    
+                    // Botones: Mostrar Modificar Y ELIMINAR
+                    registerButton.classList.add('hidden');
+                    modifyButton.classList.remove('hidden');
+                    deleteButton.classList.remove('hidden'); // Mostrar botón de eliminar
+
+                    showDataInStatus(excursion, statusMessage, 'bg-blue-100', 'text-primary', `✅ Datos de ${excursionName} cargados. Usa Modificar o Eliminar.`);
+                } else {
+                    // Excursión no encontrada por el GAS.
+                    form.reset();
+                    form.elements['nombre'].value = excursionName; // Mantener la excursión seleccionada
+                    registerButton.classList.remove('hidden');
+                    modifyButton.classList.add('hidden');
+                    deleteButton.classList.add('hidden'); // Asegurar que está oculto
+
+                    showDataInStatus({nombre: excursionName}, statusMessage, 'bg-yellow-100', 'text-accent', `⚠️ ${excursionName} no encontrado. Listo para Registrar.`);
+                }
+
+            } catch (error) {
+                console.error('Error al cargar datos desde GAS:', error);
+                showDataInStatus({}, statusMessage, 'bg-red-100', 'text-red-700', '❌ Error de Comunicación. Asegúrate de que tu Google Apps Script acepta peticiones GET/POST y devuelve JSON.');
+                
+                // Limpiar campos y mostrar Registrar
+                form.reset();
+                form.elements['nombre'].value = excursionName; // Mantener la excursión seleccionada
+                registerButton.classList.remove('hidden');
+                modifyButton.classList.add('hidden');
+                deleteButton.classList.add('hidden');
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault(); // Evita el envío tradicional del formulario
+
+            const form = event.target;
+            const clickedButton = event.submitter; // El botón que se ha pulsado
+            const action = clickedButton.value; // 'register', 'modify', o 'delete'
+            const statusMessage = document.getElementById('status-message');
+
+            // 1. Determine texts and colors
+            let buttonTextLoading;
+            let buttonTextNormal;
+            let buttonColorClass;
+            let successTitle;
+
+            if (action === 'modify') {
+                buttonTextLoading = 'Modificando...';
+                buttonTextNormal = 'Modificar Oferta';
+                buttonColorClass = 'bg-primary';
+                successTitle = '✅ Modificación Exitosa. Datos actualizados en Google Sheet.';
+            } else if (action === 'delete') {
+                buttonTextLoading = 'Eliminando...';
+                buttonTextNormal = 'Eliminar Oferta';
+                buttonColorClass = 'bg-red-600';
+                successTitle = '✅ Eliminación Exitosa. Excursión eliminada de Google Sheet.';
+                // Añadir una advertencia al status box para simular confirmación
+                showDataInStatus({}, statusMessage, 'bg-red-100', 'text-red-700', '⚠️ Eliminación en curso. Esta acción es irreversible.');
+            } else { // register
+                buttonTextLoading = 'Enviando...';
+                buttonTextNormal = 'Registrar Oferta';
+                buttonColorClass = 'bg-secondary';
+                successTitle = '✅ Registro Exitoso. Datos enviados a Google Sheet.';
+            }
+
+            // 2. Mostrar estado de carga y deshabilitar botón
+            clickedButton.disabled = true;
+            clickedButton.textContent = buttonTextLoading;
+            // Remover todas las clases de color y agregar una temporal
+            clickedButton.classList.remove('bg-secondary', 'hover:bg-emerald-700', 'bg-primary', 'hover:bg-blue-700', 'bg-red-600', 'hover:bg-red-700');
+            clickedButton.classList.add('bg-gray-500', 'cursor-not-allowed');
+            statusMessage.classList.remove('hidden');
+
+
+            // 3. Recoger los datos necesarios
+            const formData = new FormData(form);
+            const data = { action: action }; // Incluir la acción en los datos
+            
+            // Recoger el nombre de la excursión (siempre necesario)
+            data.nombre = formData.get('nombre');
+            
+            // Recoger otros datos solo si es registro o modificación
+            if (action !== 'delete') {
+                for (const [key, value] of formData.entries()) {
+                    if (key === 'action') continue;
+
+                    if (key === 'precio' || key === 'precioOriginal') {
+                        data[key] = value ? parseFloat(value) : null; 
+                    } else if (key === 'recomendado') {
+                        data[key] = 'Sí'; 
+                    } else if (key === 'actividades') {
+                        // Separa las actividades por salto de línea y las une con ' | '
+                        data[key] = value.split('\n').filter(s => s.trim() !== '').map(s => s.trim()).join(' | ');
+                    } else {
+                        data[key] = value;
+                    }
+                }
+                // Ajuste para el checkbox desmarcado
+                if (!formData.has('recomendado')) {
+                    data.recomendado = 'No';
+                }
+            }
+
+
+            // 4. Validación (mínima, ya que se asume que el HTML la maneja)
+            if (!data.nombre || data.nombre.includes('Selecciona')) {
+                showDataInStatus(data, statusMessage, 'bg-red-100', 'text-red-700', '❌ Error de Validación: Por favor, selecciona una Excursión.');
+                // Restaurar botón
+                clickedButton.disabled = false;
+                clickedButton.textContent = buttonTextNormal;
+                clickedButton.classList.remove('bg-gray-500', 'cursor-not-allowed');
+                clickedButton.classList.add(buttonColorClass, `hover:bg-${buttonColorClass.split('-')[1]}-700`);
+                return;
+            }
+
+
+            if (GAS_WEB_APP_URL.includes('REEMPLAZAR')) {
+                // Mostrar error de configuración si la URL no ha sido cambiada
+                const title = action === 'delete' ? 
+                    '⚠️ URL Faltante. No se enviará Eliminación real.' :
+                    (action === 'modify' ? '⚠️ URL Faltante. No se enviará Modificación real.' : '⚠️ URL Faltante. No se enviará Registro real.');
+                showDataInStatus(data, statusMessage, 'bg-accent/10', 'text-accent', title);
+                
+            } else {
+                try {
+                    // 5. Enviar datos al script de Google Apps
+                    const urlParams = new URLSearchParams();
+                    for (const key in data) {
+                        // Importante: El script de GAS espera parámetros en el cuerpo del POST, no en el JSON.
+                        // Convertir null a cadena vacía para el envío
+                        urlParams.append(key, data[key] === null ? '' : String(data[key]));
+                    }
+                    
+                    const response = await fetch(GAS_WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', 
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: urlParams.toString(),
+                    });
+
+                    // No podemos leer la respuesta con 'no-cors', asumimos éxito si no hay error de red
+                    const bgColor = action === 'delete' ? 'bg-red-100' : 'bg-secondary/10';
+                    const textColor = action === 'delete' ? 'text-red-700' : 'text-secondary';
+                    showDataInStatus(data, statusMessage, bgColor, textColor, successTitle);
+
+                } catch (error) {
+                    console.error('Error al enviar datos:', error);
+                    showDataInStatus(data, statusMessage, 'bg-red-100', 'text-red-700', '❌ Error de red/servidor. Revisa la consola y el script de Apps Script.');
+                }
+            }
+            
+            // 6. Restaurar botón y limpiar formulario
+            clickedButton.disabled = false;
+            clickedButton.textContent = buttonTextNormal;
+            clickedButton.classList.remove('bg-gray-500', 'cursor-not-allowed');
+            // Restaurar el color del botón
+            clickedButton.classList.add(buttonColorClass, `hover:bg-${buttonColorClass.split('-')[1]}-700`);
+
+
+            // Después de cualquier acción, limpiar el formulario y volver al modo Registro
+            document.getElementById('nombre').value = ""; 
+            loadExcursionData(""); // Carga los campos vacíos y ajusta botones
+        }
+
+        /**
+         * Muestra los datos recopilados en el cuadro de estado.
+         */
+        function showDataInStatus(data, statusMessage, bgColor, textColor, title) {
+            statusMessage.className = `mt-8 p-4 rounded-lg text-sm ${bgColor} ${textColor} border border-current block`;
+            
+            let output = `<strong>${title}</strong><br><br><ul>`;
+            
+            const { action, ...dataToShow } = data; 
+
+            for (const [key, value] of Object.entries(dataToShow)) {
+                let displayValue = value;
+                
+                // Intentar manejar formatos numéricos y nulos
+                if (key.includes('precio') || key.includes('Precio')) {
+                    displayValue = value !== null && value !== '' && !isNaN(value) ? `$${parseFloat(value).toFixed(2)}` : 'N/A';
+                } else if (value === null || value === undefined || value === '') {
+                    displayValue = 'N/A';
+                }
+
+                output += `<li><strong>${capitalizeKey(key)}:</strong> ${displayValue}</li>`;
+            }
+            if (action) {
+                   output += `<li>---</li><li><strong>Acción Realizada:</strong> ${capitalizeFirstLetter(action)}</li>`;
+            }
+            output += '</ul>';
+            
+            statusMessage.innerHTML = output;
+        }
+
+        function capitalizeFirstLetter(string) {
+            if (!string) return '';
+            return string.charAt(0).toUpperCase() + string.slice(1).replace(/([A-Z])/g, ' $1');
+        }
+
+        function capitalizeKey(string) {
+            if (!string) return '';
+            // Si tiene mayúsculas internas o guiones bajos, lo separa y capitaliza
+            return string.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+        }
+    </script>
+</body>
+</html>

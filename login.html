@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Requerido</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de Tailwind y fuente Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1D4ED8',
+                        'secondary': '#059669',
+                        'background': '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+    </style>
+</head>
+<body class="bg-background flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-sm bg-white shadow-2xl rounded-xl p-8 border border-gray-100">
+
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl font-extrabold text-primary tracking-tight">
+                Acceso al Sistema
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+                Inicia sesión para registrar ofertas.
+            </p>
+        </header>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            
+            <!-- Campo de Usuario (Simulado) -->
+            <div class="mb-5">
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                <input type="text" id="username" name="username" required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-secondary focus:border-secondary transition duration-150"
+                    placeholder="ejemplo@empresa.com" value="admin">
+            </div>
+            
+            <!-- Campo de Contraseña (Simulado) -->
+            <div class="mb-6">
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                <input type="password" id="password" name="password" required
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-secondary focus:border-secondary transition duration-150"
+                    placeholder="••••••••" value="123456">
+            </div>
+
+            <!-- Botón de Acceso -->
+            <button type="submit" id="loginButton"
+                class="w-full px-8 py-3 border border-transparent text-lg font-semibold rounded-xl shadow-xl text-white bg-secondary hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-secondary/50 transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99]">
+                Acceder
+            </button>
+            
+            <p id="error-message" class="text-red-500 text-sm mt-3 hidden text-center">Credenciales incorrectas.</p>
+        </form>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            // SIMULACIÓN DE AUTENTICACIÓN: Permite cualquier valor por simplicidad
+            if (username && password) {
+                // 1. Establecer la bandera de sesión para permitir el acceso al formulario
+                sessionStorage.setItem('isLoggedIn', 'true');
+                
+                // 2. Redirigir al formulario de registro
+                window.location.href = 'gsheet_excursions.html';
+            } else {
+                errorMessage.textContent = 'Por favor, introduce usuario y contraseña.';
+                errorMessage.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

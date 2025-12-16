@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Excursiones (Acceso Directo)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Variables y Estilos Generales (PALETA MEJORADA) */
+        :root {
+            --primary-color: #1abc9c; /* 🟢 Verde Esmeralda Vibrante (Teal) */
+            --primary-dark: #16a085; /* Verde Esmeralda Oscuro */
+            --primary-light: #e8f8f5; /* Fondo ligero para inputs/mensajes */
+            --success-color: #27ae60; /* Verde Éxito Profundo */
+            --error-color: #c0392b; /* Rojo Error Oscuro */
+            --text-dark: #2c3e50; /* Gris Oscuro Pizarrón */
+            --background-light: #ecf0f1; /* Fondo muy claro y suave */
+            --card-background: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Sombra más suave */
+            --border-radius: 12px; /* Radio más redondeado */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            /* Usar un color más suave para la línea divisoria del título principal */
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-weight: 800; /* Mayor peso para títulos */
+        }
+
+        /* Contenedor Principal */
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        /* Selector de Excursiones (Mejorado con Wrapper) */
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        
+        #excursion-selector {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            appearance: none;
+            background-color: var(--primary-light); /* Usar color ligero para el selector */
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            margin-bottom: 0;
+            color: var(--text-dark); /* Color del texto */
+        }
+        #excursion-selector:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 4px rgba(26, 188, 156, 0.2);
+        }
+
+        /* Flecha personalizada para el selector */
+        .input-wrapper::after {
+            content: '▼';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            color: var(--primary-dark);
+            font-size: 0.8em;
+            pointer-events: none;
+            transition: transform 0.3s;
+        }
+
+        /* Formulario de Edición */
+        #edit-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+            border-top: 1px solid #dcdcdc; /* Línea menos discontinua y más clara */
+            margin-top: 20px;
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            font-weight: 600;
+            font-size: 0.95em;
+            color: var(--text-dark);
+            text-align: left;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        textarea,
+        select {
+            padding: 12px; /* Un poco más de padding */
+            margin-top: 5px;
+            border: 1px solid #ccc; /* Borde más suave */
+            border-radius: 8px; /* Radio ligeramente más pequeño para inputs */
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: var(--card-background); /* Inputs blancos para contraste */
+            color: var(--text-dark);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2); /* Sombra con el nuevo color */
+            outline: none;
+            background-color: var(--card-background);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px; /* Un poco más de altura */
+        }
+
+        /* Botones */
+        #edit-form button[type="submit"] {
+            grid-column: 1 / -1; 
+            padding: 16px 20px; /* Mayor padding vertical */
+            background-color: var(--primary-color); /* Usar color primario para el botón principal (login y guardar) */
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 8px rgba(26, 188, 156, 0.3); /* Sombra del nuevo color primario */
+            margin-top: 15px;
+        }
+
+        #edit-form button[type="submit"]:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(26, 188, 156, 0.4);
+        }
+        
+        /* Mensajes de Confirmación/Error */
+        .confirm, .error-msg {
+            grid-column: 1 / -1;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-weight: 700;
+            text-align: center;
+            margin-top: 20px;
+            transition: opacity 0.3s;
+        }
+        .confirm {
+            background-color: #e6f7ee; /* Fondo muy claro de éxito */
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        .error-msg {
+            background-color: #fcecec; /* Fondo muy claro de error */
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        
+        /* Contenedor de Tarjetas de Previsualización */
+        .cards-section {
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .cards-section h2 {
+            border-color: var(--text-dark);
+            color: var(--text-dark);
+        }
+        
+        #excursion-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px; /* Más espacio entre tarjetas */
+            margin-top: 25px;
+        }
+
+        .card {
+            padding: 25px; /* Más padding en la tarjeta */
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 6px solid var(--primary-color); /* Borde más grueso */
+            background-color: var(--card-background);
+        }
+
+        .card:hover {
+            transform: translateY(-7px); /* Efecto más pronunciado */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card h3 {
+            color: var(--primary-dark);
+            margin-top: 0;
+            font-size: 1.5em; /* Título un poco más grande */
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+        
+        /* --- ESTILOS DE VISTA RÁPIDA --- */
+        .price-info {
+            display: flex;
+            align-items: flex-end; /* Alinear los textos en la base */
+            gap: 12px;
+            margin: 10px 0 8px;
+            flex-wrap: wrap; /* Añadido para mejor manejo de precios */
+        }
+
+        .current-price {
+            font-size: 1.5em; /* Precio actual más destacado */
+            font-weight: 800;
+            color: var(--success-color);
+        }
+
+        .original-price {
+            color: #95a5a6; /* Gris más suave */
+            text-decoration: line-through;
+            font-size: 1em; /* Un poco más grande para mejor lectura */
+            white-space: nowrap;
+        }
+
+        .discount-badge {
+            background-color: var(--error-color); 
+            color: white;
+            padding: 4px 10px; /* Mayor padding en el badge */
+            border-radius: 20px; /* Más redondeado (pastilla) */
+            font-weight: 700;
+            font-size: 0.85em;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-time {
+            margin: 5px 0 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #e0e0e0;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .card p {
+            line-height: 1.6; /* Mayor interlineado para la descripción */
+        }
+
+        /* Adaptación móvil */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container, .cards-section {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 1.6em;
+            }
+            #edit-form {
+                grid-template-columns: 1fr;
+            }
+            .price-info {
+                flex-wrap: wrap;
+            }
+            .current-price {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- El contenido principal se muestra por defecto al eliminar el login -->
+    <div id="main-content" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div class="container">
+            <h2>✏️ Editar Excursión Existente</h2>
+            
+            <div class="input-wrapper">
+                <select id="excursion-selector" aria-label="Selecciona una excursión">
+                    <option disabled selected>Cargando excursiones...</option>
+                </select>
+            </div>
+
+            <form id="edit-form">
+                <input type="hidden" name="rowIndex" id="rowIndex">
+                <input type="hidden" name="securityToken" id="securityTokenField">
+                
+                <label>Nombre:
+                    <input type="text" name="name" id="name" required placeholder="Nombre de la excursión">
+                </label>
+                
+                <label>Descripción:
+                    <textarea name="description" id="description" required placeholder="Descripción detallada de la actividad"></textarea>
+                </label>
+                
+                <label>Categoría:
+                    <select name="category" id="category" required>
+                        <option value="">-- Selecciona Categoría --</option>
+                        <option value="barco">⛵ Barco</option>
+                        <option value="buggy">🚜 Buggy</option>
+                        <option value="excursiones">🚶 Excursiones</option>
+                        <option value="jetcor">🛥️ Jetcor</option>
+                        <option value="jetsky">🚤 Jetsky</option>
+                        <option value="movilite">🛴 Movilite</option>
+                        <option value="quad">🏍️ Quad</option>
+                        <option value="velero">⚓ Velero</option>
+                    </select>
+                </label>
+                
+                <label>Precio (€):
+                    <input type="number" name="price" id="price" required placeholder="Ej: 50.00" step="0.01">
+                </label>
+                
+                <label>Precio original (€) (Opcional):
+                    <input type="number" name="originalPrice" id="originalPrice" placeholder="Ej: 75.00" step="0.01">
+                </label>
+                
+                <label>¿Recomendado?:
+                    <select name="recommended" id="recommended">
+                        <option value="false">No ❌</option>
+                        <option value="true">Sí ✅</option>
+                    </select>
+                </label>
+                
+                <label>Horario:
+                    <input type="text" name="schedule" id="schedule" placeholder="Ej: Mañanas (10:00h) y Tardes (16:00h)">
+                </label>
+                
+                <label>Actividades:
+                    <input type="text" name="activities" id="activities" placeholder="Lista de actividades separadas por coma">
+                </label>
+
+                <label>Ubicación (URL de Google Maps):
+                    <input type="text" name="location_url" id="location_url" placeholder="URL completa de Google Maps">
+                </label>
+
+                <button type="submit">💾 Guardar Cambios</button>
+                <div id="form-message" style="display: none; grid-column: 1 / -1;"></div>
+            </form>
+        </div>
+
+        <div class="cards-section">
+            <h2>Vista Rápida de Excursiones</h2>
+            <div id="excursion-cards">
+                <!-- Las tarjetas de excursiones se insertarán aquí -->
+            </div>
+        </div>
+    </div>
+    
+<script>
+    (function() {
+        'use strict';
+        
+        // El token se usará para mantener la estructura de la llamada a la API,
+        // pero la aplicación no requiere un login en el cliente.
+        const DEFAULT_API_TOKEN = 'A123'; 
+        
+        // URL de tu Apps Script (No modificada)
+        const BASE_API_URL = 'https://script.google.com/macros/s/AKfycbzK_ZvGVkZIa39kIHr7Dk7kcjrEbzNPhJI7GYaFvJWk_C9ts35YkWyNbvyGMVJYB2XY/exec';
+        let excursions = [];
+        let authenticatedToken = DEFAULT_API_TOKEN; 
+
+        // --- MOCK DATA: Lista de excursiones basada en la entrada del usuario ---
+        // Se utiliza para la carga inicial y el selector
+        const MOCK_EXCURSIONS_LIST = [
+            // --- Barcos / Catamaranes ---
+            { rowIndex: 2, name: 'Skyline', description: 'Excursión panorámica de lujo en yate. Ideal para avistamiento de cetáceos.', category: 'barco', price: 85.00, originalPrice: 95.00, recommended: 'true', schedule: 'Mañanas (10:00h)', activities: 'Avistamiento de cetáceos, snorkel', location_url: 'https://maps.app.goo.gl/Placeholder1' },
+            { rowIndex: 3, name: 'Bella Mar', description: 'Paseo en barco tradicional por la costa sur de Tenerife.', category: 'barco', price: 45.00, originalPrice: 0, recommended: 'false', schedule: 'Tardes (16:00h)', activities: 'Snorkel, natación', location_url: 'https://maps.app.goo.gl/Placeholder2' },
+            { rowIndex: 4, name: 'Maxicat.com', description: 'Catamarán grande con toboganes y actividades familiares.', category: 'barco', price: 60.00, originalPrice: 70.00, recommended: 'true', schedule: 'Todo el día (11:00h)', activities: 'Comida incluida, toboganes', location_url: 'https://maps.app.goo.gl/Placeholder3' },
+            { rowIndex: 5, name: 'Gulliber', description: 'Viaje a vela en busca de tortugas y delfines.', category: 'velero', price: 75.00, originalPrice: 0, recommended: 'true', schedule: 'Mediodía (13:00h)', activities: 'Avistamiento de cetáceos, vela', location_url: 'https://maps.app.goo.gl/Placeholder4' },
+            { rowIndex: 6, name: 'True Love', description: 'Catamarán romántico solo para adultos.', category: 'barco', price: 110.00, originalPrice: 125.00, recommended: 'true', schedule: 'Atardecer (18:00h)', activities: 'Cena ligera, copas', location_url: 'https://maps.app.goo.gl/Placeholder5' },
+            { rowIndex: 7, name: 'Eden Catamaran', description: 'Excursión corta de avistamiento con bebidas incluidas.', category: 'barco', price: 55.00, originalPrice: 0, recommended: 'false', schedule: 'Mañanas y Tardes', activities: 'Avistamiento rápido, bebidas', location_url: 'https://maps.app.goo.gl/Placeholder6' },
+            { rowIndex: 8, name: 'Ocean Blue Tenerife', description: 'Tour de día completo con parada en Los Gigantes.', category: 'barco', price: 90.00, originalPrice: 0, recommended: 'true', schedule: 'Día completo (09:30h)', activities: 'Los Gigantes, Masca, Comida', location_url: 'https://maps.app.goo.gl/Placeholder7' },
+            { rowIndex: 9, name: 'Frieebird', description: 'Paseo en velero de lujo, con atención personalizada.', category: 'velero', price: 150.00, originalPrice: 0, recommended: 'true', schedule: 'Medio día', activities: 'Vela, snorkel privado', location_url: 'https://maps.app.goo.gl/Placeholder9' },
+            { rowIndex: 10, name: 'El Fénix', description: 'Buceo y snorkel cerca de la costa de Las Américas.', category: 'excursiones', price: 50.00, originalPrice: 0, recommended: 'false', schedule: 'Mañanas', activities: 'Buceo, snorkel', location_url: 'https://maps.app.goo.gl/Placeholder10' },
+            { rowIndex: 11, name: 'Neptuno', description: 'Viaje para ver el atardecer desde el mar.', category: 'barco', price: 65.00, originalPrice: 0, recommended: 'true', schedule: 'Atardecer', activities: 'Vistas panorámicas', location_url: 'https://maps.app.goo.gl/Placeholder11' },
+
+            // --- Buggy / Quad / Off Road ---
+            { rowIndex: 12, name: 'Buggy Paradise', description: 'Ruta extrema de montaña con vistas al Teide.', category: 'buggy', price: 120.00, originalPrice: 150.00, recommended: 'true', schedule: 'Mañanas y Tardes', activities: 'Off-road, Teide', location_url: 'https://maps.app.goo.gl/Placeholder12' },
+            { rowIndex: 13, name: 'Master OffRoad', description: 'Experiencia de conducción avanzada en caminos rurales.', category: 'buggy', price: 135.00, originalPrice: 0, recommended: 'true', schedule: 'Mañanas', activities: 'Conducción extrema, barro', location_url: 'https://maps.app.goo.gl/Placeholder13' },
+            { rowIndex: 14, name: 'Buggy Canarias', description: 'Recorrido por zonas volcánicas en buggy.', category: 'buggy', price: 110.00, originalPrice: 0, recommended: 'false', schedule: 'Todo el día', activities: 'Rutas guiadas volcán', location_url: 'https://maps.app.goo.gl/Placeholder14' },
+            { rowIndex: 15, name: 'King Bugy', description: 'Rutas guiadas en Buggy por el sur de la isla.', category: 'buggy', price: 95.00, originalPrice: 0, recommended: 'false', schedule: 'Todo el día', activities: 'Rutas guiadas', location_url: 'https://maps.app.goo.gl/Placeholder15' },
+            { rowIndex: 16, name: 'Tenerife First Quad', description: 'Introducción al mundo del Quad, ideal para principiantes.', category: 'quad', price: 70.00, originalPrice: 0, recommended: 'false', schedule: 'Mañanas (09:00h)', activities: 'Introducción, caminos fáciles', location_url: 'https://maps.app.goo.gl/Placeholder16' },
+            { rowIndex: 17, name: 'Quad Squad', description: 'Rutas de alta montaña en Quads con guías expertos.', category: 'quad', price: 105.00, originalPrice: 115.00, recommended: 'true', schedule: 'Tardes (15:00h)', activities: 'Teide, Off-road', location_url: 'https://maps.app.goo.gl/Placeholder17' },
+            { rowIndex: 18, name: 'Monster Quad & Buggy', description: 'Combinación de ruta en Quad y Buggy para máxima adrenalina.', category: 'quad', price: 150.00, originalPrice: 180.00, recommended: 'true', schedule: 'Todo el día', activities: 'Combo Quad/Buggy, Aventura', location_url: 'https://maps.app.goo.gl/Placeholder18' },
+            { rowIndex: 19, name: 'Soul Jeep', description: 'Safari en 4x4 por zonas poco accesibles.', category: 'excursiones', price: 80.00, originalPrice: 0, recommended: 'true', schedule: 'Día completo', activities: 'Jeep Safari, Off-road', location_url: 'https://maps.app.goo.gl/Placeholder19' },
+
+            // --- Jet Ski / Actividades Acuáticas ---
+            { rowIndex: 20, name: 'Jet Ski Wave', description: 'Alquiler de motos acuáticas por horas, con circuito libre.', category: 'jetsky', price: 65.00, originalPrice: 0, recommended: 'false', schedule: 'Por horas', activities: 'Circuito de velocidad', location_url: 'https://maps.app.goo.gl/Placeholder20' },
+            { rowIndex: 21, name: 'Wow Jet Ski', description: 'Safari guiado de 2 horas en moto acuática.', category: 'jetsky', price: 100.00, originalPrice: 120.00, recommended: 'true', schedule: 'Mañanas', activities: 'Safari guiado, natación', location_url: 'https://maps.app.goo.gl/Placeholder21' },
+            { rowIndex: 22, name: 'Jet Ski Ice', description: 'La moto acuática más potente, para los más experimentados.', category: 'jetsky', price: 115.00, originalPrice: 0, recommended: 'true', schedule: 'Por horas', activities: 'Alta velocidad', location_url: 'https://maps.app.goo.gl/Placeholder22' },
+            { rowIndex: 23, name: 'Flash Jet Ski', description: 'Paseo corto pero intenso en Jet Ski.', category: 'jetsky', price: 50.00, originalPrice: 0, recommended: 'false', schedule: 'Cada hora', activities: 'Paseo rápido', location_url: 'https://maps.app.goo.gl/Placeholder23' },
+            { rowIndex: 24, name: 'Jetcar', description: 'El vehículo acuático más novedoso, con forma de coche.', category: 'jetcor', price: 180.00, originalPrice: 220.00, recommended: 'true', schedule: 'Bajo demanda', activities: 'Conducción Jetcar', location_url: 'https://maps.app.goo.gl/Placeholder24' },
+            { rowIndex: 25, name: 'Watersaafarismoi', description: 'Inmersión y snorkel con guía experto.', category: 'excursiones', price: 40.00, originalPrice: 0, recommended: 'false', schedule: 'Mediodía', activities: 'Snorkel, buceo superficial', location_url: 'https://maps.app.goo.gl/Placeholder25' },
+            { rowIndex: 26, name: 'Seaquest', description: 'Buceo profesional para todos los niveles.', category: 'excursiones', price: 80.00, originalPrice: 0, recommended: 'true', schedule: 'Mañanas', activities: 'Buceo, equipo incluido', location_url: 'https://maps.app.goo.gl/Placeholder26' },
+            { rowIndex: 27, name: 'Safari Jet Sky', description: 'Ruta guiada de 3 horas por la costa oeste.', category: 'jetsky', price: 140.00, originalPrice: 0, recommended: 'true', schedule: 'Tardes', activities: 'Exploración de cuevas marinas', location_url: 'https://maps.app.goo.gl/Placeholder27' },
+            { rowIndex: 28, name: 'Extreme Skis', description: 'Wakeboard y esquí acuático para los amantes de la velocidad.', category: 'jetsky', price: 75.00, originalPrice: 0, recommended: 'true', schedule: 'Por la mañana', activities: 'Deportes extremos', location_url: 'https://maps.app.goo.gl/Placeholder28' },
+            { rowIndex: 29, name: 'Pantalan 7', description: 'Punto de alquiler de kayaks y paddle surf.', category: 'excursiones', price: 20.00, originalPrice: 0, recommended: 'false', schedule: 'Todo el día', activities: 'Kayak, Paddle Surf', location_url: 'https://maps.app.goo.gl/Placeholder29' },
+
+            // --- Otros / Movilidad ---
+            { rowIndex: 30, name: 'Rent a Bike', description: 'Alquiler de bicicletas de montaña o carretera.', category: 'movilite', price: 25.00, originalPrice: 0, recommended: 'false', schedule: 'Día completo', activities: 'Ciclismo', location_url: 'https://maps.app.goo.gl/Placeholder30' },
+            { rowIndex: 31, name: 'Mobility', description: 'Alquiler de scooters de movilidad reducida.', category: 'movilite', price: 30.00, originalPrice: 0, recommended: 'false', schedule: 'Por días', activities: 'Movilidad en el hotel', location_url: 'https://maps.app.goo.gl/Placeholder31' },
+            { rowIndex: 32, name: 'Tinerife Garden', description: 'Visita guiada a los jardines botánicos de la isla.', category: 'excursiones', price: 35.00, originalPrice: 0, recommended: 'false', schedule: 'Mañanas', activities: 'Naturaleza, historia', location_url: 'https://maps.app.goo.gl/Placeholder32' },
+
+            // Nombres adicionales
+            { rowIndex: 33, name: 'Buggy hub', description: 'Punto de encuentro y rutas cortas de buggy.', category: 'buggy', price: 80.00, originalPrice: 0, recommended: 'false', schedule: 'Todo el día', activities: 'Rutas cortas', location_url: 'https://maps.app.goo.gl/Placeholder33' },
+            { rowIndex: 34, name: 'Quad hub', description: 'Punto de encuentro y rutas cortas de quad.', category: 'quad', price: 70.00, originalPrice: 0, recommended: 'false', schedule: 'Todo el día', activities: 'Rutas cortas', location_url: 'https://maps.app.goo.gl/Placeholder34' },
+            { rowIndex: 35, name: 'Xtreme', description: 'Excursión de senderismo y escalada en el Parque Nacional.', category: 'excursiones', price: 60.00, originalPrice: 0, recommended: 'true', schedule: 'Mañanas (07:00h)', activities: 'Senderismo, escalada', location_url: 'https://maps.app.goo.gl/Placeholder35' },
+        ];
+
+
+        // Rellenar el campo hidden con el token por defecto/placeholder
+        document.getElementById('securityTokenField').value = authenticatedToken;
+
+        /**
+         * Función para manejar las solicitudes de fetch con reintentos.
+         * Se mantiene para la llamada POST de actualización, aunque la carga inicial use MOCK DATA.
+         * @param {string} url - URL base.
+         * @param {Object} options - Opciones de Fetch.
+         * @returns {Promise<Response>}
+         */
+        async function safeFetch(url, options = {}) {
+            const finalUrl = new URL(url);
+            
+            // Añadir el token a los parámetros de búsqueda
+            finalUrl.searchParams.set('token', authenticatedToken);
+
+            // Manejar los datos POST para que Apps Script los reciba en los parámetros
+            if (options.method === 'POST' && options.body instanceof URLSearchParams) {
+                options.body.forEach((value, key) => finalUrl.searchParams.set(key, value));
+                delete options.body; 
+            }
+
+            let lastError = null;
+            for (let i = 0; i < 3; i++) { // Intentar hasta 3 veces con backoff
+                try {
+                    const response = await fetch(finalUrl.toString(), options);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("Fetch failed, response text:", errorText);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    lastError = error;
+                    const delay = Math.pow(2, i) * 1000;
+                    //console.log(`Retrying fetch (attempt ${i + 1})... waiting ${delay}ms`); // Omitido por la regla de no loggear retries
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            throw new Error(`Falló la solicitud después de múltiples reintentos: ${lastError.message}`);
+        }
+
+        /**
+         * Muestra un mensaje de éxito o error.
+         * @param {string} message - El contenido del mensaje.
+         * @param {boolean} isSuccess - Si es un mensaje de éxito (true) o error (false).
+         */
+        function showMessage(message, isSuccess) {
+            const container = document.getElementById('form-message');
+            container.style.display = 'block';
+            container.className = isSuccess ? 'confirm' : 'error-msg';
+            container.textContent = message;
+            
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 3000);
+        }
+
+        /**
+         * Genera el HTML para las tarjetas de vista rápida.
+         * Incluye: Nombre, Precio Original, Descuento y Horario.
+         * @param {Array<Object>} excursionsData - La lista de excursiones.
+         */
+        function renderExcursionCards(excursionsData) {
+            const cards = document.getElementById('excursion-cards');
+            
+            if (excursionsData.length === 0) {
+                cards.innerHTML = '<p class="error-msg" style="grid-column: 1 / -1; margin: 0; display: block;">No hay excursiones para mostrar. El Apps Script no devolvió datos.</p>';
+                return;
+            }
+
+            cards.innerHTML = excursionsData.map(ex => {
+                const price = parseFloat(ex.price || 0);
+                const originalPrice = parseFloat(ex.originalPrice || 0);
+                
+                let discountHtml = '';
+                let originalPriceHtml = '';
+                let currentPriceDisplay = `€${price.toFixed(2)}`;
+
+                if (originalPrice > price && originalPrice > 0) {
+                    const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
+                    discountHtml = `<span class="discount-badge">-${discount}%</span>`;
+                    currentPriceDisplay = `€${price.toFixed(2)}`;
+                    originalPriceHtml = `<span class="original-price">€${originalPrice.toFixed(2)}</span>`;
+                } else {
+                    currentPriceDisplay = `€${price.toFixed(2)}`;
+                }
+                
+                const description = ex.description || 'Sin descripción.';
+                const schedule = ex.schedule || 'No especificado';
+
+                return `
+                    <div class="card" id="excursion-${ex.rowIndex}">
+                        <h3>${ex.name}</h3>
+                        
+                        <div class="price-info">
+                            ${originalPriceHtml}
+                            <span class="current-price">${currentPriceDisplay}</span>
+                            ${discountHtml}
+                        </div>
+
+                        <p class="schedule-time">🕒 Horario: ${schedule}</p>
+
+                        <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                            ${description.length > 100 ? description.substring(0, 100).trim() + '...' : description}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        /**
+         * Carga los datos de las excursiones. Usa MOCK DATA para evitar la dependencia de un Apps Script activo.
+         */
+        function loadExcursionData() {
+            const selector = document.getElementById('excursion-selector');
+            selector.innerHTML = '<option disabled selected>Cargando excursiones...</option>';
+
+            // **USANDO MOCK DATA PARA LA CARGA INICIAL**
+            excursions = MOCK_EXCURSIONS_LIST; 
+            
+            if (excursions.length > 0) {
+                 // Ordenar por nombre alfabéticamente
+                excursions.sort((a, b) => a.name.localeCompare(b.name));
+                
+                // Generar opciones del selector
+                selector.innerHTML = `
+                    <option disabled selected>Selecciona una excursión</option>
+                    ${excursions.map((ex, i) => `<option value="${i}">${ex.name}</option>`).join('')}
+                `;
+                // Generar tarjetas de vista rápida
+                renderExcursionCards(excursions);
+            } else {
+                document.getElementById('excursion-cards').innerHTML = '<p class="error-msg" style="grid-column: 1 / -1; margin: 0; display: block;">❌ La lista de excursiones está vacía.</p>';
+                selector.innerHTML = '<option disabled selected>Lista vacía</option>';
+            }
+        }
+
+
+        document.getElementById('excursion-selector').addEventListener('change', (e) => {
+            const index = e.target.value;
+            const excursion = excursions[index];
+            
+            // Verificar si hay una excursión seleccionada
+            if (excursion) {
+                // Rellenar formulario
+                document.getElementById('rowIndex').value = excursion.rowIndex || "";
+                document.getElementById('name').value = excursion.name || "";
+                document.getElementById('description').value = excursion.description || "";
+                document.getElementById('category').value = excursion.category || "";
+                document.getElementById('price').value = excursion.price || "";
+                document.getElementById('originalPrice').value = excursion.originalPrice || "";
+                // Manejar valor booleano o string
+                const isRecommended = String(excursion.recommended).toLowerCase() === 'true' ? 'true' : 'false';
+                document.getElementById('recommended').value = isRecommended;
+                document.getElementById('schedule').value = excursion.schedule || "";
+                document.getElementById('activities').value = excursion.activities || "";
+                document.getElementById('location_url').value = excursion.location_url || "";
+            }
+        });
+
+        document.getElementById('edit-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            // Limpiar mensajes anteriores
+            document.getElementById('form-message').style.display = 'none';
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Guardando...';
+
+            const formData = new FormData(form);
+            const data = new URLSearchParams(); // Usar URLSearchParams para enviar datos a Apps Script
+            
+            // Construir objeto para actualizar la lista localmente y datos de envío
+            const updatedExcursion = {};
+            formData.forEach((value, key) => {
+                data.append(key, value);
+                updatedExcursion[key] = value;
+            });
+            
+            // Asegurar que el token esté en la data
+            data.set('token', authenticatedToken);
+
+            // Usar safeFetch para el envío de datos
+            safeFetch(BASE_API_URL, {
+                method: 'POST',
+                body: data 
+            })
+            .then(res => res.text()) // Apps Script DoPost devuelve texto (Success o Error)
+            .then(msg => {
+                if (msg.toLowerCase().includes('success')) {
+                    // Encontrar y actualizar el objeto en la lista 'excursions'
+                    const rowIndex = parseInt(formData.get('rowIndex'));
+                    const localIndex = excursions.findIndex(ex => parseInt(ex.rowIndex) === rowIndex);
+                    
+                    if (localIndex !== -1) {
+                        // Combinar datos existentes con los actualizados del formulario
+                        excursions[localIndex] = { ...excursions[localIndex], ...updatedExcursion };
+                        // Volver a renderizar las tarjetas para reflejar los cambios
+                        renderExcursionCards(excursions); 
+                    }
+
+                    // Mostrar mensaje de éxito
+                    showMessage("✅ Excursión actualizada correctamente (¡Se envió al Apps Script!)", true);
+
+                } else {
+                     // Si el script de Apps Script devuelve un mensaje de error legible
+                    throw new Error(msg || 'Error desconocido del servidor.'); 
+                }
+            })
+            .catch(err => {
+                console.error("Error al actualizar:", err);
+                // Mostrar mensaje de error
+                showMessage(`❌ Error al guardar los cambios: ${err.message}`, false);
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.textContent = '💾 Guardar Cambios';
+            });
+        });
+
+        // Cargar los datos al inicio de la aplicación (acceso directo)
+        loadExcursionData();
+    })();
+</script>
+</body>
+</html>
