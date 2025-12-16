@@ -3,90 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Requerido</title>
+    <title>Inicio de Sesión</title>
     <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configuración de Tailwind y fuente Inter -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#1D4ED8',
-                        'secondary': '#059669',
-                        'background': '#F9FAFB',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Gris claro */
+        }
+        .login-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 15px -5px rgba(0, 0, 0, 0.04);
+        }
     </style>
 </head>
-<body class="bg-background flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-sm bg-white shadow-2xl rounded-xl p-8 border border-gray-100">
+    <!-- Contenedor Principal de la Tarjeta de Login -->
+    <div class="login-card w-full max-w-md bg-white rounded-xl p-8 space-y-6">
 
-        <header class="mb-6 text-center">
-            <h1 class="text-2xl font-extrabold text-primary tracking-tight">
-                Acceso al Sistema
-            </h1>
-            <p class="mt-1 text-sm text-gray-500">
-                Inicia sesión para registrar ofertas.
-            </p>
-        </header>
+        <h1 class="text-3xl font-bold text-center text-gray-800">Iniciar Sesión</h1>
+        <p class="text-center text-gray-500">Accede a tu cuenta</p>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <!-- Formulario de Login -->
+        <form id="loginForm" class="space-y-4">
             
-            <!-- Campo de Usuario (Simulado) -->
-            <div class="mb-5">
-                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+            <!-- Campo de Usuario -->
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario</label>
                 <input type="text" id="username" name="username" required
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-secondary focus:border-secondary transition duration-150"
-                    placeholder="ejemplo@empresa.com" value="admin">
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                       placeholder="Ingresa tu usuario">
             </div>
-            
-            <!-- Campo de Contraseña (Simulado) -->
-            <div class="mb-6">
+
+            <!-- Campo de Contraseña -->
+            <div>
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
                 <input type="password" id="password" name="password" required
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-secondary focus:border-secondary transition duration-150"
-                    placeholder="••••••••" value="123456">
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                       placeholder="Ingresa tu contraseña">
             </div>
 
-            <!-- Botón de Acceso -->
+            <!-- Mensaje de Estado (Éxito/Error) -->
+            <div id="messageBox" class="text-center p-3 rounded-lg hidden" role="alert">
+                <!-- El mensaje se insertará aquí -->
+            </div>
+
+            <!-- Botón de Login -->
             <button type="submit" id="loginButton"
-                class="w-full px-8 py-3 border border-transparent text-lg font-semibold rounded-xl shadow-xl text-white bg-secondary hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-secondary/50 transition duration-300 ease-in-out transform hover:scale-[1.01] active:scale-[0.99]">
-                Acceder
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                Entrar
             </button>
-            
-            <p id="error-message" class="text-red-500 text-sm mt-3 hidden text-center">Credenciales incorrectas.</p>
         </form>
+
+        <!-- Instrucciones para el usuario -->
+        <div class="pt-4 border-t border-gray-200">
+            <p class="text-xs text-red-500 text-center font-semibold">
+                ⚠️ **REEMPLAZAR URL** ⚠️
+            </p>
+            <p class="text-xs text-gray-500 text-center mt-1">
+                Asegúrate de copiar el Google Apps Script y reemplazar la variable 'SHEET_API_URL' con la URL de tu Web App para que la validación funcione realmente.
+            </p>
+        </div>
+
     </div>
 
     <script>
-        function handleLogin(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('error-message');
+        // La URL de la API de Gemini (se deja vacía para que el entorno la complete)
+        const apiKey = ""; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-            // SIMULACIÓN DE AUTENTICACIÓN: Permite cualquier valor por simplicidad
-            if (username && password) {
-                // 1. Establecer la bandera de sesión para permitir el acceso al formulario
-                sessionStorage.setItem('isLoggedIn', 'true');
-                
-                // 2. Redirigir al formulario de registro
-                window.location.href = 'gsheet_excursions.html';
-            } else {
-                errorMessage.textContent = 'Por favor, introduce usuario y contraseña.';
-                errorMessage.classList.remove('hidden');
+        // ----------------------------------------------------
+        // URL DE GOOGLE APPS SCRIPT (REEMPLAZAR CON TU URL REAL)
+        // ----------------------------------------------------
+        // ¡DEBES REEMPLAZAR ESTO con la URL obtenida al publicar google_apps_script.gs!
+        const SHEET_API_URL = 'YOUR_APPS_SCRIPT_URL_HERE'; 
+
+        // Referencias a elementos del DOM
+        const loginForm = document.getElementById('loginForm');
+        const messageBox = document.getElementById('messageBox');
+        const loginButton = document.getElementById('loginButton');
+
+        /**
+         * Muestra un mensaje en la caja de estado.
+         * @param {string} message El texto del mensaje.
+         * @param {string} type 'success' o 'error'.
+         */
+        function showMessage(message, type) {
+            messageBox.innerHTML = message;
+            messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-700');
             }
         }
+
+        /**
+         * Realiza la validación de credenciales contra la API de Google Apps Script.
+         * @param {string} username El nombre de usuario.
+         * @param {string} password La contraseña.
+         * @returns {object|null} El objeto de usuario si es válido (con nombre), o null.
+         */
+        async function validateCredentials(username, password) {
+            if (SHEET_API_URL === 'https://script.google.com/macros/s/AKfycbzqHhB7fzXykztXrl9DTaVAyYFc9KWR7MDsGD-QIh5qq4M7xBo7qQKv48jzqxS0FxEl/exec') {
+                showMessage('❌ ERROR: Debes reemplazar la URL del script en el código JavaScript.', 'error');
+                return null;
+            }
+
+            try {
+                const response = await fetch(SHEET_API_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la conexión con la API: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // El script debe devolver { success: true, name: 'Nombre Usuario' }
+                if (result.success) {
+                    return { 
+                        username: username, 
+                        name: result.name || username // Usa el nombre devuelto o el username
+                    }; 
+                } else {
+                    return null; // Credenciales inválidas
+                }
+
+            } catch (error) {
+                console.error("Error durante la validación de credenciales:", error);
+                // Mostrar un mensaje de error genérico si hay problemas de red o CORS
+                showMessage('❌ Error de conexión/CORS. Revisa la URL del script y la configuración de Web App.', 'error');
+                return null;
+            }
+        }
+
+        /**
+         * Llama a la API de Gemini para generar un mensaje de bienvenida.
+         * (Se mantiene para un mejor UX después del login).
+         * @param {string} userName El nombre del usuario logueado.
+         */
+        async function generateWelcomeMessage(userName) {
+            const userQuery = `Genera un mensaje de bienvenida formal y conciso para un usuario que acaba de iniciar sesión. El nombre del usuario es: ${userName}.`;
+            const systemPrompt = "Eres un asistente amigable y profesional. Genera solo el texto del mensaje de bienvenida.";
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            const maxRetries = 3;
+            let currentRetry = 0;
+
+            while (currentRetry < maxRetries) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) return text;
+                    throw new Error("No se pudo obtener el texto generado.");
+                } catch (error) {
+                    console.error(`Intento ${currentRetry + 1} fallido:`, error);
+                    currentRetry++;
+                    if (currentRetry < maxRetries) {
+                        const delay = Math.pow(2, currentRetry) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            return `¡Bienvenido/a, ${userName}!`;
+        }
+
+        // Manejador del envío del formulario
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Limpiar mensaje anterior
+            messageBox.classList.add('hidden');
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-blue-300 rounded-full mr-2"></span> Verificando...';
+
+            // 1. Validar contra la Hoja de Google (a través del Apps Script)
+            const user = await validateCredentials(username, password);
+
+            if (user) {
+                // 2. Credenciales válidas: Generar mensaje de bienvenida con Gemini API
+                try {
+                    const welcomeMessage = await generateWelcomeMessage(user.name);
+                    
+                    showMessage(
+                        `✅ **Inicio de sesión exitoso.** ${welcomeMessage}`, 
+                        'success'
+                    );
+
+                    // Aquí iría la lógica para desbloquear el formulario o redirigir
+                    console.log(`Usuario autenticado: ${user.name}`);
+
+                } catch (error) {
+                    console.error("Error al generar mensaje de bienvenida:", error);
+                    // Mostrar un mensaje de éxito simple si la API falla
+                    showMessage(`✅ **¡Bienvenido/a, ${user.name}!**`, 'success');
+                }
+
+            } else {
+                // 3. Credenciales inválidas (manejadas dentro de validateCredentials)
+                // Si el error fue de conexión, validateCredentials ya llamó a showMessage.
+                // Si la validación falló (credenciales incorrectas):
+                if (SHEET_API_URL !== 'YOUR_APPS_SCRIPT_URL_HERE' && !messageBox.classList.contains('bg-red-100')) {
+                     showMessage('❌ Error de inicio de sesión. Usuario o contraseña incorrectos.', 'error');
+                }
+            }
+
+            loginButton.disabled = false;
+            loginButton.textContent = 'Entrar';
+        });
+
     </script>
 </body>
 </html>
