@@ -31,25 +31,7 @@
 </head>
 <body class="bg-background flex items-center justify-center min-h-screen p-4 sm:p-6">
 
-    <!-- Bloque de Guardia de Acceso (DEBE EJECUTARSE PRIMERO) -->
-    <script>
-        // Si la bandera 'isLoggedIn' no está establecida, redirigir al login
-        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-            // Utilizamos replace para evitar que el usuario pueda volver con el botón atrás
-            window.location.replace('login_form.html');
-            // Detener la ejecución del script y renderizado de la página
-            throw new Error("Acceso Denegado. Redirigiendo a login."); 
-        }
-        
-        // Opcional: Para una mejor seguridad, eliminar la bandera al salir de la página
-        window.addEventListener('beforeunload', () => {
-             // sessionStorage.removeItem('isLoggedIn'); // Descomentar si se desea cerrar sesión al cerrar pestaña
-        });
-    </script>
-    <!-- FIN Bloque de Guardia -->
-
-
-    <!-- Contenedor principal del formulario -->
+    <!-- Contenedor principal del formulario (reducido a max-w-xl para más foco) -->
     <div class="w-full max-w-xl bg-white shadow-2xl rounded-xl p-6 sm:p-8 border border-gray-100">
 
         <header class="mb-8 border-b border-gray-200 pb-4">
@@ -118,6 +100,7 @@
                         <option value="Monster Quad & Buggy">Monster Quad & Buggy</option>
                         <option value="Watersaafarismoi">Watersaafarismoi</option>
                         <option value="Seaquestff">Seaquestff</option>
+                        <option value="Gulliber">Gulliber</option>
                         <option value="Ocean Blue Tenerife">Ocean Blue Tenerife</option>
                         <option value="Arriro Boat">Arriro Boat</option>
                     </select>
@@ -494,7 +477,7 @@
                 output += `<li><strong>${capitalizeKey(key)}:</strong> ${displayValue}</li>`;
             }
             if (action) {
-                   output += `<li>---</li><li><strong>Acción Realizada:</strong> ${capitalizeFirstLetter(action)}</li>`;
+                 output += `<li>---</li><li><strong>Acción Realizada:</strong> ${capitalizeFirstLetter(action)}</li>`;
             }
             output += '</ul>';
             
