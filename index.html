@@ -27,7 +27,6 @@
             --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             
-            /* Typography Scaling */
             --font-main: 'Outfit', sans-serif;
             --base-font-size: 20px; 
         }
@@ -61,7 +60,7 @@
             align-items: center;
             justify-content: center;
             background-image: linear-gradient(rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.6)), 
-                              url('https://images.unsplash.com/photo-1570654230464-9e74d5fca62f?auto=format&fit=crop&q=80&w=2000');
+                              url('teide.png'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -71,7 +70,7 @@
             clip-path: ellipse(150% 100% at 50% 0%);
         }
 
-        .header-content { animation: fadeInUp 1s ease-out; max-width: 1000px; }
+        .header-content { animation: fadeInUp 1s ease-out; max-width: 1000px; width: 100%; }
 
         .brand-name {
             font-family: 'Pacifico', cursive;
@@ -81,6 +80,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 6px 15px rgba(0,0,0,0.4));
+            white-space: nowrap; /* Asegura una sola línea */
         }
 
         #header-tagline {
@@ -112,11 +112,8 @@
             gap: 20px;
         }
 
-        .section-title i {
-            color: var(--color-secondary);
-        }
+        .section-title i { color: var(--color-secondary); }
 
-        /* --- Recommended Section Styling --- */
         #recommended-section {
             background: rgba(245, 158, 11, 0.05);
             margin: 40px -50px;
@@ -138,6 +135,7 @@
             box-shadow: var(--shadow-xl);
             border: 1px solid rgba(255,255,255,0.6);
             width: fit-content;
+            max-width: 90%;
         }
 
         .filter-btn {
@@ -210,6 +208,23 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .tag-recommended {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 2;
         }
         
         .discount-badge { position: absolute; top: 25px; right: 25px; background: var(--color-discount); color: white; padding: 8px 18px; border-radius: 15px; font-weight: 800; font-size: 1rem; z-index: 2; }
@@ -289,23 +304,35 @@
         .footer-brand h3 { font-family: 'Pacifico', cursive; font-size: 3rem; margin-bottom: 25px; color: var(--color-secondary); }
         .footer-brand p { font-size: 1.2rem; color: #94a3b8; max-width: 500px; }
 
-        /* --- Adaptive Breakpoints --- */
+        /* --- Responsive Tweaks --- */
         @media (max-width: 768px) {
             :root { --base-font-size: 16px; }
+            
+            /* Ajuste solicitado: Título más pequeño y en una sola línea */
+            .brand-name { 
+                font-size: 3.2rem; 
+                margin-bottom: 10px;
+                letter-spacing: -1px;
+            }
+            #header-tagline { font-size: 1.1rem; }
+            header { height: 60vh; min-height: 400px; }
+
             main { padding: 0 15px 60px 15px; }
             .section-title { font-size: 1.8rem; margin: 40px 0 20px; padding-left: 15px; border-left-width: 6px; }
             
             #recommended-section { margin: 20px -15px; padding: 10px 15px 40px 15px; border-radius: 30px; }
 
             .filter-container {
-                display: flex;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
                 gap: 8px;
                 padding: 12px;
                 border-radius: 25px;
-                width: 100%;
+                width: 95%;
                 margin: -30px auto 30px;
             }
+
+            .filter-btn { padding: 8px 10px; font-size: 0.9rem; text-align: center; }
 
             .excursions-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .card-img-wrapper { height: 160px; }
@@ -316,6 +343,7 @@
             .current-price { font-size: 1.5rem; }
             .whatsapp-button { padding: 12px 6px; font-size: 0.8rem; }
             .card-badge { top: 10px; left: 10px; padding: 4px 8px; font-size: 0.65rem; }
+            .tag-recommended { bottom: 8px; right: 8px; font-size: 0.6rem; padding: 3px 8px; }
         }
 
         /* --- WhatsApp FAB --- */
@@ -344,6 +372,11 @@
             transition: var(--transition);
             text-decoration: none;
         }
+
+        @media (max-width: 768px) {
+            .whatsapp-fab { width: 60px; height: 60px; font-size: 1.8rem; }
+            .whatsapp-fab-container { bottom: 25px; right: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -358,16 +391,13 @@
     <main>
         <div id="error-display"></div>
         
-        <!-- Filtros -->
         <div class="filter-container" id="filter-container"></div>
 
-        <!-- SECCIÓN DE RECOMENDADOS -->
         <section id="recommended-section" style="display:none;">
             <h2 class="section-title"><i class="fas fa-star"></i> <span id="title-recommended"></span></h2>
             <div id="recommended-container" class="excursions-grid"></div>
         </section>
 
-        <!-- SECCIÓN TODAS LAS EXCURSIONES -->
         <section id="excursions-section">
             <h2 class="section-title"><i class="fas fa-compass"></i> <span id="title-all"></span></h2>
             <div id="excursions-container" class="excursions-grid">
@@ -417,7 +447,8 @@
                 error: "Error al conectar con el servidor.",
                 fDesc: "Explora los rincones más mágicos de las Islas Canarias con guías expertos.",
                 fLinks: "Enlaces Rápidos",
-                fContact: "Contacto Directo"
+                fContact: "Contacto Directo",
+                tagRec: "Recomendado"
             },
             en: {
                 tagline: "Unique experiences in the volcanic heart of the Canaries.",
@@ -429,7 +460,8 @@
                 error: "Error connecting to server.",
                 fDesc: "Explore the most magical corners of the Canary Islands with expert guides.",
                 fLinks: "Quick Links",
-                fContact: "Direct Contact"
+                fContact: "Direct Contact",
+                tagRec: "Recommended"
             }
         };
 
@@ -463,7 +495,7 @@
                         category: item.categoria || "Naturaleza",
                         price: parseFloat(item.precio) || 0,
                         originalPrice: parseFloat(item.precioOriginal) || 0,
-                        recommended: String(item.recomendado).toLowerCase().trim() === "si",
+                        recommended: String(item.recommended).toLowerCase().trim() === "si" || String(item.recomendado).toLowerCase().trim() === "si",
                         schedule: item.horario || "Consultar",
                         location_raw: item.localizacion || "#",
                         image: item.imagen || "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=800"
@@ -485,6 +517,7 @@
                             ${ex.recommended ? `<div class="card-badge"><i class="fas fa-crown"></i> TOP</div>` : ''}
                             ${hasDiscount ? `<div class="discount-badge">-${discountPct}%</div>` : ''}
                             <img src="${ex.image}" class="card-img" alt="${ex.name}" loading="lazy">
+                            ${ex.recommended ? `<div class="tag-recommended">${t.tagRec}</div>` : ''}
                         </div>
                         <div class="card-content">
                             <div class="card-header">
@@ -522,10 +555,8 @@
 
                 excursions.forEach(ex => {
                     const cardHtml = createCardHtml(ex);
-                    // Todas van a la lista principal
                     mainContainer.insertAdjacentHTML('beforeend', cardHtml);
                     
-                    // Solo las recomendadas van a la sección superior
                     if (ex.recommended) {
                         recContainer.insertAdjacentHTML('beforeend', cardHtml);
                         countRec++;
@@ -536,7 +567,6 @@
                 
                 setupFilters();
                 
-                // Animación de entrada
                 const obs = new IntersectionObserver(ents => ents.forEach(e => { 
                     if(e.isIntersecting) {
                         e.target.classList.add('visible');
@@ -557,13 +587,11 @@
                         e.target.classList.add('active');
                         const f = e.target.dataset.filter;
                         
-                        // Filtramos tanto en recomendados como en general
                         document.querySelectorAll('.excursions-grid .card').forEach(c => {
                             const match = (f === t.filterAll || c.dataset.category === f);
                             c.style.display = match ? 'flex' : 'none';
                         });
 
-                        // Si no hay recomendados visibles después de filtrar, ocultamos el título de la sección
                         const visibleRecs = Array.from(document.querySelectorAll('#recommended-container .card')).some(c => c.style.display !== 'none');
                         document.getElementById('recommended-section').style.display = visibleRecs ? 'block' : 'none';
                     }
